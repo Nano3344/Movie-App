@@ -8,20 +8,8 @@ class Movie {
 
 class UI {
   static displayMovies() {
-    const storedMovies = [
-      {
-        title: "Jurassic Park",
-        director: "James Cameron",
-        movien: "702"
-      },
-      {
-        title: "Transformers 2",
-        director: "James Cameron",
-        movien: "635"
-      }
-    ];
 
-    const movies = storedMovies;
+    const movies = storeMovies.getMovies();
 
     movies.forEach((movie) => UI.addMovieToList(movie));
   }
@@ -39,6 +27,59 @@ class UI {
 
     list.appendChild(row);
   }
+
+  static deleteMovie(el) {
+   if(el.classList.contains('delete')) {
+    el.parentElement.parentElement.remove();
+  }
+  }
+
+  static displayValidation(message, className) {
+    const div = document.createElement('div');
+    div.className = 'alert alert-' + className;
+    div.appendChild(document.createTextNode(message));
+    const container = document.querySelector('.container');
+    const form = document.querySelector('.movie-form');
+    container.insertBefore(div, form);
+    setTimeout(() => document.querySelector('.alert').remove(), 3000);
+  }
+
+  static ClearList() {
+    document.querySelector('#title').value = '';
+    document.querySelector('#director').value = '';
+    document.querySelector('#movien').value = '';
+  }
+
+}
+
+class storeMovies {
+  static getMovies() {
+    let movies;
+    if(localStorage.getItem('movies') === null) {
+      movies = [];
+    } else {
+      movies = JSON.parse(localStorage.getItem('movies'));
+    }
+
+    return movies;
+  }
+  static addMovies(movie) {
+    const movies = storeMovies.getMovies();
+
+    movies.push(movie);
+
+    localStorage.setItem('movies', JSON.stringify(movies));
+  }
+  static removeMovies(movien) {
+    const movies = storeMovies.getMovies();
+
+    forEach((movie, index) => {
+       if(movie.movien === movien) {
+         movies.splice(index, 1);
+       }
+    });
+    localStorage.setItem('movies', JSON.stringify(movies));
+  }
 }
 
 document.addEventListener('DOMContentLoaded', UI.displayMovies);
@@ -52,5 +93,23 @@ document.querySelector('.movie-form').addEventListener('submit', (e) => {
 
   const movie = new Movie(title, director, movien);
 
+  if(title === '' || director === '' || movien === '') {
+    UI.displayValidation('Fill out the form please', 'danger');
+  } else {
+
   UI.addMovieToList(movie);
+
+  storeMovies.addMovies(movie);
+
+  UI.displayValidation('Movie added to the list', 'success');
+
+  UI.ClearList();
+
+}
+});
+
+document.querySelector('.movie-list').addEventListener('click', (e) => {
+ UI.deleteMovie(e.target);
+ UI.displayValidation('Movie removed from the list', 'danger');
+ storeMovies.removeMovies(e.target.parentElement.previousElementSibling.textContent);
 });
