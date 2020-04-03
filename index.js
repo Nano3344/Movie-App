@@ -73,7 +73,7 @@ class storeMovies {
   static removeMovies(movien) {
     const movies = storeMovies.getMovies();
 
-    forEach((movie, index) => {
+    movies.forEach((movie, index) => {
        if(movie.movien === movien) {
          movies.splice(index, 1);
        }
